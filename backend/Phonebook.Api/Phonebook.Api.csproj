@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Phonebook.Api</RootNamespace>
+    <!-- دفترچه تلفن چندکاربره — لایه‌ی ارائه (Web API) -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Entity Framework Core به همراه پروایدر SQL Server (رویکرد Code-First) -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+
+    <!-- نگاشت بین Entity و DTO -->
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+
+    <!-- اعتبارسنجی ورودی‌ها -->
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+
+    <!-- احراز هویت با JWT -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
+
+    <!-- مستندسازی API -->
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+  </ItemGroup>
+
+</Project>

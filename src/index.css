@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+/* ============================================================
+   تم طراحی «دفترچه تلفن» — سبز کاج + عسلی + کاغذی
+   ============================================================ */
+@theme {
+  --font-sans: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Lalezar", "Vazirmatn", sans-serif;
+
+  --color-pine-50: #f0f5f2;
+  --color-pine-100: #dcebe3;
+  --color-pine-200: #bcd7c9;
+  --color-pine-300: #8fbcaa;
+  --color-pine-400: #58987f;
+  --color-pine-500: #2e7b62;
+  --color-pine-600: #17634f;
+  --color-pine-700: #105041;
+  --color-pine-800: #0c3e34;
+  --color-pine-900: #092e27;
+  --color-pine-950: #061f1b;
+
+  --color-honey-100: #fcf0d8;
+  --color-honey-200: #f8dfa9;
+  --color-honey-300: #f2c76f;
+  --color-honey-400: #e9ae3f;
+  --color-honey-500: #d9951f;
+  --color-honey-600: #b47414;
+  --color-honey-700: #8a5710;
+
+  --color-paper: #f2f5f1;
+  --color-danger: #bc3d30;
+  --color-danger-soft: #fbeae7;
+  --color-success: #1e7a4e;
+  --color-success-soft: #e4f3ea;
+
+  --shadow-card: 0 1px 2px rgb(9 46 39 / 0.06), 0 6px 20px -6px rgb(9 46 39 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(9 46 39 / 0.08), 0 18px 36px -12px rgb(9 46 39 / 0.22);
+}
+
+html {
+  scrollbar-color: #bcd7c9 transparent;
+}
+
+body {
+  @apply bg-paper text-pine-950 font-sans antialiased;
+  background-image: radial-gradient(rgb(9 46 39 / 0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+::selection {
+  background: #f2c76f;
+  color: #092e27;
+}
+
+/* ---------- الگوها و بافت‌ها ---------- */
+.bg-dots-light {
+  background-image: radial-gradient(rgb(255 255 255 / 0.13) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+.bg-lines-paper {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 30px,
+    rgb(16 80 65 / 0.06) 30px,
+    rgb(16 80 65 / 0.06) 31px
+  );
+}
+
+/* ---------- حرکت‌ها ---------- */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes shake-x {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--tilt, 0deg)); }
+}
+@keyframes ring-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(233 174 63 / 0.55); }
+  70% { box-shadow: 0 0 0 12px rgb(233 174 63 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(233 174 63 / 0); }
+}
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.animate-fade-up { animation: fade-up 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.animate-pop { animation: pop 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.animate-toast-in { animation: toast-in 0.3s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+.animate-fade-in { animation: fade-in 0.25s ease both; }
+.animate-shake { animation: shake-x 0.5s ease both; }
+.animate-float { animation: float-y 5s ease-in-out infinite; }
+.animate-ring-pulse { animation: ring-pulse 2s ease-out infinite; }
+.animate-bar-grow { animation: bar-grow 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) both; transform-origin: right; }
+
+/* ---------- اسکرول‌بار ظریف ---------- */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: #bcd7c9; border-radius: 8px; border: 3px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* فلشِ Select — به‌جای کلاس‌های arbitrary برای سازگاری بهتر */
+.select-caret {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2317634f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 0.9rem center;
+}
+
+/* اعداد فارسی در عناصر دارای کلاس fa-digits */
+.fa-digits { font-feature-settings: "ss01"; }
