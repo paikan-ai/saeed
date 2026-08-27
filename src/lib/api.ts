@@ -1,7 +1,6 @@
 /* ============================================================
    لایه‌ی دسترسی به API
-   - اگر سرور ASP.NET در دسترس باشد (GET /api/health) → API واقعی
-   - در غیر این صورت → سرور شبیه‌سازی‌شده (Mock) با همان قرارداد
+   - اتصال مستقیم به بک‌اند ASP.NET Core روی پورت 5000
    ============================================================ */
 
 import { mockServer } from "./mockServer";
@@ -18,17 +17,21 @@ import {
 
 export type ApiMode = "detecting" | "real" | "mock";
 
+// ⚠️ تغییر حیاتی: تعریف آدرس پایه بک‌اند
+const BASE_URL = "http://localhost:5000";
+
 const TOKEN_KEY = "phonebook.token.v1";
 
 let mode: ApiMode = "detecting";
 export const getMode = () => mode;
 
-/** تشخیص اتصال به سرور واقعی — یک بار هنگام بارگذاری برنامه */
+/** تشخیص اتصال به سرور واقعی */
 export async function initApi(): Promise<ApiMode> {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 1500);
-    const res = await fetch("/api/health", { signal: controller.signal });
+    // استفاده از BASE_URL برای چک کردن سلامت سرور
+    const res = await fetch(`${BASE_URL}/api/health`, { signal: controller.signal });
     clearTimeout(timer);
     mode = res.ok ? "real" : "mock";
   } catch {
@@ -61,7 +64,8 @@ export const readToken = () => loadSession()?.token ?? null;
 
 /* ---------- کلاینت HTTP برای سرور واقعی ---------- */
 async function request<T>(path: string, options: RequestInit = {}, token?: string | null): Promise<T> {
-  const res = await fetch(`/api${path}`, {
+  // ️ تغییر حیاتی: افزودن BASE_URL به تمام درخواست‌ها
+  const res = await fetch(`${BASE_URL}/api${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -84,7 +88,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
 }
 
 /* ============================================================
-   API عمومی برنامه — بسته به حالت، به سرور واقعی یا Mock وصل می‌شود
+   API عمومی برنامه
    ============================================================ */
 export const api = {
   login(username: string, password: string): Promise<LoginResponse> {
@@ -94,8 +98,6 @@ export const api = {
   },
 
   restoreSession(session: Session): Promise<LoginResponse | null> {
-    // در حالت Mock صحت و انقضای توکن بررسی می‌شود؛ در حالت واقعی، نشست ذخیره‌شده
-    // پذیرفته می‌شود و در صورت انقضای توکن، اولین درخواستِ ناموفق نشست را پاک می‌کند.
     return mode === "real" ? Promise.resolve(session) : mockServer.restoreSession(session.token);
   },
 
