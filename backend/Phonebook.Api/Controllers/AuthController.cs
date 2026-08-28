@@ -27,6 +27,21 @@ public class AuthController(AuthService authService) : ControllerBase
         }
     }
 
+    /// <summary>اطلاعات کاربر جاری — برای اعتبارسنجی نشستِ ذخیره‌شده هنگام بارگذاری برنامه</summary>
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<UserDto>> Me()
+    {
+        try
+        {
+            return Ok(await authService.GetMeAsync(User.GetUserId()));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new ApiErrorResponse(ex.Message));
+        }
+    }
+
     /// <summary>تغییر رمز عبور (اجباری برای ادمین در اولین ورود / اختیاری برای همه)</summary>
     [Authorize]
     [HttpPost("change-password")]

@@ -73,7 +73,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
       ...options.headers,
     },
   });
-  if (!res.ok) {
+    if (!res.ok) {
     let message = "خطا در ارتباط با سرور";
     try {
       const body = await res.json();
@@ -81,9 +81,14 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     } catch {
       /* بدنه‌ی JSON نبود */
     }
+    // اگر درخواستِ دارای توکن با 401 برگردد، یعنی نشست از نظر سرور نامعتبر است؛
+    // به‌جای تکرار خطا در هر عملیات، یک رویداد سراسری منتشر می‌شود تا AuthContext
+    // نشست را پاک کرده و کاربر را به صفحه‌ی ورود بفرستد.
+    if (res.status === 401 && token) {
+      window.dispatchEvent(new CustomEvent("phonebook:unauthorized"));
+    }
     throw new ApiError(res.status, message);
-  }
-  if (res.status === 204) return undefined as T;
+  }  if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
 }
 
@@ -98,7 +103,15 @@ export const api = {
   },
 
   restoreSession(session: Session): Promise<LoginResponse | null> {
-    return mode === "real" ? Promise.resolve(session) : mockServer.restoreSession(session.token);
+    // حالت واقعی: توکن ذخیره‌شده حتماً باید از خود سرور تأیید بگیرد؛
+    // وگرنه نشست‌های قدیمی (مثلاً مربوط به اجرای قبلی Mock یا کلید JWT متفاوت)
+    // باعث خطای 401 در عملیاتی مثل تغییر رمز یا ایجاد شماره می‌شوند.
+    if (mode === "real") {
+      return request<UserDto>("/auth/me", {}, session.token)
+        .then((me) => ({ token: session.token, user: me }))
+        .catch(() => null); // نشست نامعتبر → بازگشت به صفحه‌ی ورود
+    }
+    return mockServer.restoreSession(session.token);
   },
 
   changePassword(token: string, currentPassword: string, newPassword: string): Promise<LoginResponse> {

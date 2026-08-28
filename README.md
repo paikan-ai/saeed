@@ -127,6 +127,7 @@ npm run build      # خروجی Production در dist/
 |---|---|---|---|
 | POST | `/api/auth/login` | عمومی | ورود و دریافت توکن |
 | POST | `/api/auth/change-password` | لاگین‌شده | تغییر رمز (اجباری/اختیاری) |
+| GET | `/api/auth/me` | لاگین‌شده | اعتبارسنجی نشست ذخیره‌شده هنگام بارگذاری فرانت‌اند |
 | PUT | `/api/auth/profile` | لاگین‌شده | ویرایش نام کاربری خودم |
 | GET | `/api/users` | ادمین | لیست کاربران |
 | GET | `/api/users/stats` | ادمین | آمار داشبورد |

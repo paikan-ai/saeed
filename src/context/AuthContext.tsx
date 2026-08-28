@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
 import { api, clearSession, initApi, loadSession, saveSession, ApiMode } from "../lib/api";
 import { LoginResponse, UserDto } from "../lib/types";
+import { useToast } from "../components/Toast";
 
 /* ============================================================
    مدیریت نشست کاربر: ورود، خروج، به‌روزرسانی اطلاعات کاربر
@@ -65,25 +66,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (detected === "mock") {
-        // در حالت Mock صحت و انقضای توکن بررسی می‌شود
-        const restored = await api.restoreSession(session);
-        if (cancelled) return;
-        if (restored) {
-          applyAuth(restored);
-        } else {
-          clearSession();
-          setStatus("guest");
-        }
+      // هر دو حالت: نشست ذخیره‌شده باید معتبر باشد —
+      //  • Mock: بررسی امضا و انقضای توکن شبیه‌سازی‌شده
+      //  • واقعی: تأیید توکن از خود سرور با GET /api/auth/me
+      //    تا نشست‌های قدیمی/بیگانه باعث خطای «ابتدا وارد شوید» در عملیات نشوند.
+      const restored = tokenExpired(session.token) ? null : await api.restoreSession(session);
+      if (cancelled) return;
+      if (restored) {
+        applyAuth(restored);
       } else {
-        // در حالت سرور واقعی، انقضای توکن از روی Payload بررسی می‌شود؛
-        // در صورت انقضا، نشست پاک شده و کاربر به صفحه‌ی ورود برمی‌گردد.
-        if (tokenExpired(session.token)) {
-          clearSession();
-          setStatus("guest");
-        } else {
-          applyAuth(session);
-        }
+        clearSession();
+        setStatus("guest");
       }
     })();
     return () => {
@@ -106,6 +99,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setStatus("guest");
   }, []);
+
+  const { push } = useToast();
+
+  // شنونده‌ی سراسری 401 — اگر سرور هر درخواستِ احراز هویت‌شده‌ای را نپذیرفت
+  // (توکن منقضی/نامعتبر)، به‌جای نمایش خطای تکراری در هر عملیات، نشست پاک شده
+  // و کاربر با یک پیام روشن به صفحه‌ی ورود هدایت می‌شود.
+  useEffect(() => {
+    const onUnauthorized = () => {
+      logout();
+      push("info", "نشست شما پایان یافت", "توکن ورود نامعتبر یا منقضی شده است؛ لطفاً دوباره وارد شوید.");
+    };
+    window.addEventListener("phonebook:unauthorized", onUnauthorized);
+    return () => window.removeEventListener("phonebook:unauthorized", onUnauthorized);
+  }, [logout, push]);
 
   return (
     <AuthContext.Provider value={{ status, user, token, mode, login, logout, applyAuth }}>

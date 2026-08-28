@@ -27,6 +27,19 @@ public class AuthService(AppDbContext db, PasswordHasher hasher, JwtTokenService
     }
 
     /// <summary>
+    /// دریافت اطلاعات کاربر جاری بر اساس توکن JWT —
+    /// فرانت‌اند هنگام بارگذاری برنامه، نشست ذخیره‌شده در مرورگر را با این متد
+    /// اعتبارسنجی می‌کند تا توکن‌های قدیمی/نامعتبر باعث خطای 401 در عملیات نشوند.
+    /// </summary>
+    public async Task<UserDto> GetMeAsync(int userId)
+    {
+        var user = await db.Users.Include(u => u.Contacts).FirstOrDefaultAsync(u => u.Id == userId)
+            ?? throw new UnauthorizedAccessException("نشست شما نامعتبر است؛ لطفاً دوباره وارد شوید.");
+
+        return mapper.Map<UserDto>(user);
+    }
+
+    /// <summary>
     /// تغییر رمز عبور — هم برای «تغییر رمز اجباری ادمین در اولین ورود»
     /// و هم برای تغییر رمز اختیاری هر کاربر استفاده می‌شود.
     /// </summary>
