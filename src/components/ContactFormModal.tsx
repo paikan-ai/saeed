@@ -121,26 +121,34 @@ export default function ContactFormModal({
             {rows.map((row, idx) => (
               <div key={row.key} className="animate-fade-up">
                 <div className="flex items-stretch gap-2">
-                  <span className="grid w-8 shrink-0 place-items-center rounded-lg bg-pine-50 text-[11px] font-extrabold text-pine-500">
+                  {/* شماره‌ی ردیف — فقط در صفحه‌های بزرگ‌تر برای صرفه‌جویی در فضا */}
+                  <span className="hidden w-7 shrink-0 place-items-center rounded-lg bg-pine-50 text-[11px] font-extrabold text-pine-500 sm:grid">
                     {idx + 1}
                   </span>
-                  <Select
-                    value={row.phoneType}
-                    onChange={(e) => setRow(row.key, { phoneType: e.target.value as PhoneType })}
-                    className="w-28 shrink-0"
-                    aria-label="نوع شماره"
-                  >
-                    {(Object.keys(PHONE_TYPE_LABEL) as PhoneType[]).map((t) => (
-                      <option key={t} value={t}>
-                        {PHONE_TYPE_LABEL[t]}
-                      </option>
-                    ))}
-                  </Select>
+                  {/*
+                    اصلاح باگ عرض: Select خودش w-full دارد؛ اگر مستقیماً کلاس عرض بگیرد
+                    با w-full تداخل می‌کند و کل ردیف را می‌بلعد! پس عرض ثابت را روی
+                    Wrapper اعمال می‌کنیم تا Select فقط همان را پُر کند.
+                  */}
+                  <div className="w-24 shrink-0 sm:w-28">
+                    <Select
+                      value={row.phoneType}
+                      onChange={(e) => setRow(row.key, { phoneType: e.target.value as PhoneType })}
+                      aria-label="نوع شماره"
+                    >
+                      {(Object.keys(PHONE_TYPE_LABEL) as PhoneType[]).map((t) => (
+                        <option key={t} value={t}>
+                          {PHONE_TYPE_LABEL[t]}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                  {/* flex-1 + min-w-0 → باکس شماره همیشه بقیه‌ی فضای ردیف را می‌گیرد و له نمی‌شود */}
                   <TextInput
                     dir="ltr"
                     inputMode="tel"
                     placeholder="0912 345 6789"
-                    className="text-left"
+                    className="min-w-0 flex-1 text-left"
                     value={row.phoneNumber}
                     onChange={(e) => setRow(row.key, { phoneNumber: e.target.value })}
                     invalid={!!errors.phones?.[row.key]}
@@ -156,7 +164,7 @@ export default function ContactFormModal({
                   </button>
                 </div>
                 {errors.phones?.[row.key] && (
-                  <p className="mt-1 ms-10 text-xs font-medium text-danger">{errors.phones[row.key]}</p>
+                  <p className="mt-1 ms-0 text-xs font-medium text-danger sm:ms-9">{errors.phones[row.key]}</p>
                 )}
               </div>
             ))}

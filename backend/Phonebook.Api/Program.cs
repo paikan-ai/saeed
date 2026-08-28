@@ -86,13 +86,17 @@ builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 // ---------- کنترلرها + فیلتر اعتبارسنجی سراسری ----------
 builder.Services.AddControllers(options =>
         options.Filters.Add<FluentValidationFilter>())
-    //序列化 Enumها به‌صورت رشته (Admin/User, Mobile/Home/Work) برای سهولت فرانت‌اند
+    // سریال‌سازی Enumها به‌صورت رشته (Admin/User, Mobile/Home/Work) برای سهولت فرانت‌اند
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()));
 
-// ---------- CORS برای فرانت‌اند React (حالت توسعه) ----------
+// ---------- CORS برای فرانت‌اند React ----------
+// فرانت‌اند از آدرس http://localhost:5000 (تعریف‌شده در BASE_URL فایل src/lib/api.ts)
+// به این API وصل می‌شود؛ چون Origin فرانت متفاوت است (پورت 3000 یا هاست دیگر)،
+// در حالت توسعه اجازه‌ی همه‌ی Originها داده می‌شود.
+// ⚠️ در Production حتماً با WithOrigins فقط آدرس‌های مجاز را قبول کنید.
 builder.Services.AddCors(options => options.AddPolicy("ReactDev", policy =>
-    policy.WithOrigins(builder.Configuration["ClientUrl"] ?? "http://localhost:5173")
+    policy.AllowAnyOrigin()
           .AllowAnyHeader()
           .AllowAnyMethod()));
 
